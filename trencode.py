@@ -7,6 +7,7 @@
 import sys, getopt
 
 def main (argv):
+    keylen = 0
 
     try:
         opts, args = getopt.getopt (argv, "ht:k:",["ptext=", "keysize="])

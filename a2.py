@@ -7,6 +7,18 @@ def usage():
     print('Usage: a1.py -i <inputfile> -k <max key size>')
     print('Usage: a1.py -s <inputstring> -k <max key size>')
 
+def check_dictionary(inputstring, max_key):
+    for key in range (1, max_key):
+        result = trdecode.decryptMessage(key, inputstring)
+        print("Key:", key, "String: ", result)
+
+        if detectEnglish.FindEnglish(result):
+           answer = input("Continue? (y/n)")
+           if answer == "n":
+               return True
+
+    return False
+
 def main(argv):
     is_inputfile = False
     is_inputstring = False
@@ -38,37 +50,32 @@ def main(argv):
     if (is_inputfile == True) and (is_inputstring == True):
         print(usage())
     elif (is_inputfile == True):                #check entire file
+        found = False
+
         for key in range (1, max_key):
+            #make new empty list of key size length
             print("trying keysize: ", key)
 
             with open(inputfile) as f:
                 while True:
+                    #get keysize number of characters
                     c = f.read(key)
 
-                    if not c:
-                        print ("EOF")
+                    #go to next keysize of EOF is found
+                    if c == '':
+                        print ("Found: EOF")
                         break
 
-                    result = trdecode.decryptMessage(key, c)
+                    found = check_dictionary(c, key)
 
-                    if detectEnglish.FindEnglish(result):
-                       print("Found: ", result)
-                       answer = input("Continue? (y/n)")
-                       if answer == "n":
-                           break
+                    if found:
+                        break
+            if found:
+                break;
+
 
     elif (is_inputstring == True):              #check only string from command line
-        for key in range (1, max_key):
-            print("trying keysize: ", key)
-
-            result = trdecode.decryptMessage(key, inputstring)
-            print("Found: ", result)
-
-            if detectEnglish.FindEnglish(result):
-               print("Found: ", result)
-               answer = input("Continue? (y/n)")
-               if answer == "n":
-                   break
+        check_dictionary(inputstring, max_key)
     else:
         print(usage())
 
