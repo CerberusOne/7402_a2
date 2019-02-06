@@ -7,17 +7,37 @@ def usage():
     print('Usage: a1.py -i <inputfile> -k <max key size>')
     print('Usage: a1.py -s <inputstring> -k <max key size>')
 
+def decrypt_file(inputfile, key):
+    #open input file
+    with open(inputfile, 'r') as i:
+        #get keysize number of characters
+        inputstring = i.read()
+        inputstring = inputstring.rstrip()
+
+    #open results file
+    with open("results.txt", 'w') as o:
+        #decrypt into results file
+        o.write(trdecode.decryptMessage(key, inputstring))
+
+    #close files
+    i.close()
+    o.close()
+
 def check_dictionary(inputstring, max_key):
+    #iterate through every possible key size
     for key in range (1, max_key):
+        #decrypt with potential key
         result = trdecode.decryptMessage(key, inputstring)
         print("Key:", key, "String: ", result)
 
+        #check if key is potentially right
         if detectEnglish.FindEnglish(result):
-           answer = input("Continue? (y/n)")
-           if answer == "n":
-               return True
+            #if user thinks the key is right, decrypt rest of ciphertext
+            answer = input("Continue? (y/n)")
+            if answer == "n":
+                return key
 
-    return False
+    return 0
 
 def main(argv):
     is_inputfile = False
@@ -52,26 +72,15 @@ def main(argv):
     elif (is_inputfile == True):                #check entire file
         found = False
 
-        for key in range (1, max_key):
-            #make new empty list of key size length
-            print("trying keysize: ", key)
+        with open(inputfile, 'r') as f:
+            #get keysize number of characters
+            c = f.read()
+            c = c.rstrip()
 
-            with open(inputfile) as f:
-                while True:
-                    #get keysize number of characters
-                    c = f.read(key)
-
-                    #go to next keysize of EOF is found
-                    if c == '':
-                        print ("Found: EOF")
-                        break
-
-                    found = check_dictionary(c, key)
-
-                    if found:
-                        break
-            if found:
-                break;
+            #go to next keysize of EOF is found
+            key_solution = check_dictionary(c, max_key)
+            if key_solution != 0:
+                decrypt_file(inputfile, key_solution)
 
 
     elif (is_inputstring == True):              #check only string from command line
