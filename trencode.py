@@ -7,10 +7,13 @@
 import sys, getopt
 
 def main (argv):
+    is_file = False
+    is_outfile = False
+    plaintext = ''
     keylen = 0
 
     try:
-        opts, args = getopt.getopt (argv, "ht:k:",["ptext=", "keysize="])
+        opts, args = getopt.getopt (argv, "ht:k:i:o:",["ptext=", "keysize=", "ifile=", "ofile="])
 
     except getopt.getoptError:
         sys.exit (1)
@@ -24,14 +27,32 @@ def main (argv):
             sys.exit ()
         elif opt in ("-t", "--ptext"):
             plaintext = arg
+        elif opt in ("-i", "--pfile"):
+            inputfile = arg
+            is_file = True
+        elif opt in ("-o", "--ofile"):
+            outputfile = arg
+            is_outfile = True
         elif opt in ("-k", "--keysize"):
             keylen = int (arg)
 
-    # call the crypto function
-    ciphertext = encryptMessage (keylen, plaintext)
+    if is_file and is_outfile:
+        with open(inputfile, 'r') as i:
+            inputstring = i.read()
+            inputstring = inputstring.rstrip()
+            ciphertext = encryptMessage(keylen, inputstring)
+
+        with open(outputfile, 'w') as o:
+            o.write(ciphertext)
+
+        i.close
+        o.close
+
+    else:
+        # call the crypto function
+        ciphertext = encryptMessage (keylen, plaintext)
 
     # Print the ciphertext
-    #
     print(ciphertext)
 
 
